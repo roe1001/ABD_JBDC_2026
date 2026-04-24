@@ -32,9 +32,9 @@ public class BorrarClienteException extends SQLException {
 		if (code == CLIENTE_NO_EXIST) {
 			this.mensaje = "El cliente no existe\n";
 		} else if (code == CLIENTE_TIENE_PEDIDOS) {
-			this.mensaje = "El cliente tiene pedidos, así que no puede eliminarse todavía";
+			this.mensaje = "El cliente tiene pedidos, así que no puede eliminarse todavía\n";
 		} else {
-			this.mensaje = "Error desconocido";
+			this.mensaje = "Error desconocido\n";
 		}
 
 		LOGGER.debug(mensaje);
