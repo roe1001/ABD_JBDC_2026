@@ -101,15 +101,34 @@ public class EsqueletoGestionDonacionesSangre {
 			
 			
 		} catch (SQLException e) {
-			//Completar por el alumno			
+			// Si algo falla, deshacemos todos los cambios en la BD
+			if (con != null) {
+				con.rollback(); 
+			}		
 			
-			logger.error(e.getMessage());
-			throw e;		
+			// Registramos el error si no es una de nuestras excepciones 
+			if (!(e instanceof GestionDonacionesSangreException)) {
+				logger.error("Error imprevisto en la donación: " + e.getMessage()); 
+			}
+    
+			throw e; // Volvemos a lanzar la excepción para que el test la capture		
 
 		} finally {
-			/*A rellenar por el alumno*/
+			// Cerramos todos los recursos en orden inverso a su apertura
+			// Hay q comprobar que no sean null antes de cerrar
+			if (rsDni != null) rsDni.close();
+			if (rsFecha != null) rsFecha.close();
+			if (stDni != null) stDni.close();
+			if (stHosp != null) stHosp.close();
+			if (stFecha != null) stFecha.close();
+			if (stIns != null) stIns.close();
+			if (stUpd != null) stUpd.close();
+    
+			// Al final, devolvemos la conexión al pool
+			if (con != null) {
+			con.close(); 
+			}
 		}
-		
 		
 	}
 	
