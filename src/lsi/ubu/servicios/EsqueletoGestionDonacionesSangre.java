@@ -46,7 +46,7 @@ public class EsqueletoGestionDonacionesSangre {
 			con = pool.getConnection();
 						
 			// --- BLOQUE 1: Validaciones de datos de entrada ---
-            // El volumen debe ser positivo y no exceder los 0.45 litros 
+            // El volumen debe ser positivo y no superar los 0.45 litros 
             if (m_Cantidad < 0 || m_Cantidad > 0.45f) {
                 throw new GestionDonacionesSangreException(GestionDonacionesSangreException.VALOR_CANTIDAD_DONACION_INCORRECTO);
             }
@@ -80,7 +80,24 @@ public class EsqueletoGestionDonacionesSangre {
                     throw new GestionDonacionesSangreException(GestionDonacionesSangreException.DONANTE_EXCEDE);
                 }
             }
-			
+			// --- BLOQUE 3: Insertamos y actualizamos reservas ---
+            // Insertar registro de donación usando la secuencia 
+            PreparedStatement stIns = con.prepareStatement(
+                "INSERT INTO donacion (id_donacion, nif_donante, cantidad, fecha_donacion) VALUES (seq_donacion.nextval, ?, ?, ?)");
+            stIns.setString(1, m_NIF);
+            stIns.setFloat(2, m_Cantidad);
+            stIns.setDate(3, new java.sql.Date(m_Fecha_Donacion.getTime()));
+            stIns.executeUpdate();
+
+            // Actualizar la cantidad en la reserva del hospital 
+            PreparedStatement stUpd = con.prepareStatement(
+                "UPDATE reserva_hospital SET cantidad = cantidad + ? WHERE id_hospital = ? AND id_tipo_sangre = ?");
+            stUpd.setFloat(1, m_Cantidad);
+            stUpd.setInt(2, m_ID_Hospital);
+            stUpd.setInt(3, tipoSangreDonante);
+            stUpd.executeUpdate();
+
+            con.commit(); // Fin de la transacción
 			
 			
 		} catch (SQLException e) {
