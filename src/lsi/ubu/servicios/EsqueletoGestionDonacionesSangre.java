@@ -179,24 +179,33 @@ public class EsqueletoGestionDonacionesSangre {
                 stResta.executeUpdate();
             }
 			
-			
-			
-			
-			
-			
-			
-			
-		} catch (SQLException e) {
-			//Completar por el alumno			
-			
-			logger.error(e.getMessage());
-			throw e;		
+			// --- COMMIT 3: Borrado físico y cierre de recursos ---
+            stElimina = con.prepareStatement(
+                "DELETE FROM traspaso WHERE id_tipo_sangre = ? AND id_hospital_origen = ? " +
+                "AND id_hospital_destino = ? AND fecha_traspaso = ?");
+            stElimina.setInt(1, m_ID_Tipo_Sangre);
+            stElimina.setInt(2, m_ID_Hospital_Origen);
+            stElimina.setInt(3, m_ID_Hospital_Destino);
+            stElimina.setDate(4, new java.sql.Date(m_Fecha_Traspaso.getTime()));
+            stElimina.executeUpdate();
 
-		} finally {
-			/*A rellenar por el alumno*/
-		}		
-	}
-	
+            con.commit(); // Consolidar cambios
+
+        } catch (SQLException e) {
+            if (con != null) con.rollback(); // Rollback obligatorio  
+            throw e;
+        } finally {
+            if (rsBusqueda != null) rsBusqueda.close();
+            if (stBusqueda != null) stBusqueda.close();
+            if (stSuma != null) stSuma.close();
+            if (stResta != null) stResta.close();
+            if (stElimina != null) stElimina.close();
+            if (con != null) con.close();
+        }
+    }
+			
+			
+			
 	public static void consulta_traspasos(String m_Tipo_Sangre)
 			throws SQLException {
 
