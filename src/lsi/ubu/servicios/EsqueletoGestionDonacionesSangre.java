@@ -40,7 +40,10 @@ public class EsqueletoGestionDonacionesSangre {
 		
 		PoolDeConexiones pool = PoolDeConexiones.getInstance();
 		Connection con=null;
-
+		
+		// Declaramos fuera para que sean visibles en el finally
+		PreparedStatement stDni = null, stHosp = null, stFecha = null, stIns = null, stUpd = null;
+		ResultSet rsDni = null, rsFecha = null;
 	
 		try{
 			con = pool.getConnection();
@@ -137,12 +140,32 @@ public class EsqueletoGestionDonacionesSangre {
 			throws SQLException {
 		
 		PoolDeConexiones pool = PoolDeConexiones.getInstance();
-		Connection con=null;
+        Connection con = null;
+        PreparedStatement stBusqueda = null, stSuma = null, stResta = null, stElimina = null;
+        ResultSet rsBusqueda = null;
 
-	
-		try{
-			con = pool.getConnection();
-			//Completar por el alumno
+        try {
+            con = pool.getConnection();
+
+            // --- COMMIT 1: Obtener la cantidad del traspaso ---
+            stBusqueda = con.prepareStatement(
+                "SELECT cantidad FROM traspaso WHERE id_tipo_sangre = ? AND id_hospital_origen = ? " +
+                "AND id_hospital_destino = ? AND fecha_traspaso = ?");
+            stBusqueda.setInt(1, m_ID_Tipo_Sangre);
+            stBusqueda.setInt(2, m_ID_Hospital_Origen);
+            stBusqueda.setInt(3, m_ID_Hospital_Destino);
+            stBusqueda.setDate(4, new java.sql.Date(m_Fecha_Traspaso.getTime()));
+            
+            rsBusqueda = stBusqueda.executeQuery();
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 		} catch (SQLException e) {
 			//Completar por el alumno			
