@@ -61,6 +61,28 @@ public class EsqueletoGestionDonacionesSangre {
             }
             int tipoSangreDonante = rsDni.getInt(1);
 			
+			// --- BLOQUE 2: Reglas de hospital y tiempo entre donaciones ---
+            // Validar que el hospital de destino existe 
+            PreparedStatement stHosp = con.prepareStatement("SELECT 1 FROM hospital WHERE id_hospital = ?");
+            stHosp.setInt(1, m_ID_Hospital);
+            if (!stHosp.executeQuery().next()) {
+                throw new GestionDonacionesSangreException(GestionDonacionesSangreException.HOSPITAL_NO_EXISTE);
+            }
+
+            // Regla de los 15 días: Una persona no puede donar tan seguido
+            PreparedStatement stFecha = con.prepareStatement("SELECT MAX(fecha_donacion) FROM donacion WHERE nif_donante = ?");
+            stFecha.setString(1, m_NIF);
+            ResultSet rsFecha = stFecha.executeQuery();
+
+            if (rsFecha.next() && rsFecha.getDate(1) != null) {
+                // Usamos la utilidad Misc para calcular la diferencia de días
+                if (Misc.howManyDaysBetween(m_Fecha_Donacion, rsFecha.getDate(1)) < 15) {
+                    throw new GestionDonacionesSangreException(GestionDonacionesSangreException.DONANTE_EXCEDE);
+                }
+            }
+			
+			
+			
 		} catch (SQLException e) {
 			//Completar por el alumno			
 			
