@@ -158,7 +158,26 @@ public class EsqueletoGestionDonacionesSangre {
             
             rsBusqueda = stBusqueda.executeQuery();
 			
-			
+			// --- COMMIT 2: Revertir stock en hospitales ---
+            if (rsBusqueda.next()) {
+                float cantidadARevertir = rsBusqueda.getFloat(1);
+
+                // Sumar al origen
+                stSuma = con.prepareStatement(
+                    "UPDATE reserva_hospital SET cantidad = cantidad + ? WHERE id_hospital = ? AND id_tipo_sangre = ?");
+                stSuma.setFloat(1, cantidadARevertir);
+                stSuma.setInt(2, m_ID_Hospital_Origen);
+                stSuma.setInt(3, m_ID_Tipo_Sangre);
+                stSuma.executeUpdate();
+
+                // Restar al destino
+                stResta = con.prepareStatement(
+                    "UPDATE reserva_hospital SET cantidad = cantidad - ? WHERE id_hospital = ? AND id_tipo_sangre = ?");
+                stResta.setFloat(1, cantidadARevertir);
+                stResta.setInt(2, m_ID_Hospital_Destino);
+                stResta.setInt(3, m_ID_Tipo_Sangre);
+                stResta.executeUpdate();
+            }
 			
 			
 			
